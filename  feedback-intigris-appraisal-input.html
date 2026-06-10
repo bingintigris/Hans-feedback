@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Appraisal Input · Intigris</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#FBF9F6; --surface:#FFFFFF; --ink:#2A211C; --muted:#8A7B70;
+    --brand:#43332A; --brand-deep:#2E211A; --accent:#B07A3C; --accent-soft:#F3E7D6;
+    --brand-orange:#FF5F36; --line:#E8E0D7; --line-strong:#D8CCC0;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.55;}
+  .wrap{max-width:780px;margin:0 auto;padding:0 20px 90px;}
+
+  .masthead{background:var(--brand-orange);margin:0 -20px 0;padding:38px 28px 34px;}
+  .masthead-inner{max-width:780px;margin:0 auto;}
+  .logo{height:30px;width:auto;display:block;margin-bottom:24px;filter:brightness(0) invert(1);opacity:.97;}
+  .logo-fallback{font-family:"Fraunces",serif;font-size:22px;font-weight:600;margin-bottom:22px;color:#fff;display:none;}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-deep);font-weight:600;margin:0 0 10px;}
+  .masthead h1{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:30px;line-height:1.18;margin:0 0 12px;color:var(--brand-deep);}
+  .masthead p{margin:0;color:#FFEADD;font-size:15px;max-width:62ch;}
+
+  .context{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:26px 0 8px;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;}
+  .context .full{grid-column:1 / -1;}
+  label{display:block;font-size:13px;font-weight:600;color:var(--brand);margin:0 0 6px;}
+  .hint{font-weight:400;color:var(--muted);font-size:12px;}
+  input[type=text]{width:100%;padding:10px 12px;font-size:15px;font-family:inherit;color:var(--ink);background:#FCFAF7;border:1px solid var(--line-strong);border-radius:9px;}
+  input[type=text]:focus,textarea:focus{outline:2px solid var(--brand-orange);outline-offset:1px;border-color:var(--brand-orange);}
+
+  section.block{margin-top:38px;}
+  .block-head h2{font-family:"Fraunces",serif;font-weight:500;font-size:22px;margin:0;color:var(--brand-deep);}
+  .block-sub{color:var(--muted);font-size:14px;margin:3px 0 16px;}
+  .legend{font-size:12.5px;color:var(--muted);margin:0 0 18px;padding:10px 14px;background:var(--accent-soft);border-radius:9px;}
+  .legend b{color:var(--brand);}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 22px 18px;margin-bottom:18px;}
+  .area-head{padding:16px 0 6px;border-bottom:2px solid var(--brand-orange);margin-bottom:4px;}
+  .area-head h3{font-family:"Fraunces",serif;font-weight:500;font-size:18px;margin:0;color:var(--brand-deep);}
+  .area-head .src{font-size:11.5px;color:var(--muted);font-style:italic;margin-top:2px;}
+
+  .subrow{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line);}
+  .subrow:last-of-type{border-bottom:none;}
+  .subrow .meta{flex:1 1 auto;min-width:0;}
+  .sname{font-size:14.5px;font-weight:600;color:var(--ink);margin:0 0 3px;}
+  .sdesc{font-size:12.5px;color:var(--muted);line-height:1.45;margin:0;}
+
+  .scale{display:flex;gap:7px;flex:0 0 auto;}
+  .scale button{min-width:40px;padding:9px 0;cursor:pointer;background:#FCFAF7;border:1px solid var(--line-strong);border-radius:9px;font-family:inherit;font-size:15px;font-weight:600;color:var(--brand);transition:background .12s,border-color .12s,transform .08s;}
+  .scale button:hover{border-color:var(--brand-orange);}
+  .scale button[aria-pressed="true"]{background:var(--brand-orange);border-color:var(--brand-orange);color:#fff;}
+  @media (prefers-reduced-motion:no-preference){ .scale button:active{transform:translateY(1px);} }
+
+  .notes-wrap{margin-top:14px;}
+  textarea{width:100%;min-height:80px;resize:vertical;padding:12px;font-size:15px;line-height:1.5;font-family:inherit;color:var(--ink);background:#FCFAF7;border:1px solid var(--line-strong);border-radius:11px;}
+  .openq{margin-bottom:20px;}
+  .openq label{font-size:14.5px;}
+
+  .overall{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px;}
+  .overall .row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .overall .row p{margin:0;font-size:15.5px;font-weight:600;}
+
+  .actions{margin-top:40px;padding-top:26px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
+  .btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;padding:13px 26px;border-radius:11px;background:var(--brand);color:#fff;transition:background .14s;}
+  .btn:hover{background:var(--brand-deep);}
+  .btn:focus-visible{outline:2px solid var(--brand-orange);outline-offset:2px;}
+  .note{color:var(--muted);font-size:13px;max-width:62ch;}
+  .confirm{display:none;background:var(--accent-soft);border:1px solid #E2CBA8;color:#6B4B25;border-radius:11px;padding:13px 16px;font-size:14px;font-weight:500;width:100%;}
+  .confirm.show{display:block;}
+
+  @media (max-width:580px){
+    .masthead h1{font-size:25px;}
+    .context{grid-template-columns:1fr;}
+    .subrow{flex-direction:column;gap:12px;}
+    .scale button{min-width:0;flex:1;}
+  }
+</style>
+</head>
+<body>
+<div class="masthead">
+  <div class="masthead-inner">
+    <img class="logo" src="https://cdn.prod.website-files.com/643138b157e24b0daaae2bf6/652cdc96ac2fb6a71adf26dd_Logo%20Intigris_Dark%20Brown.png" alt="Intigris" onerror="this.style.display='none';document.getElementById('lf').style.display='block';">
+    <div class="logo-fallback" id="lf">Intigris</div>
+    <p class="eyebrow">Annual performance review</p>
+    <h1>Appraisal input — manager</h1>
+    <p>Bing has adapted Intigris's core competencies to a marketing role. A quick 1–5 rating on each line, plus any notes where useful, gives a clear picture to bring into the review. There's space for open reflections and anything else at the end.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="context">
+    <div>
+      <label for="reviewee">Reviewee</label>
+      <input type="text" id="reviewee" value="Bing Thimon Voorham — Marketing">
+    </div>
+    <div>
+      <label for="reviewer">Reviewer <span class="hint">(you)</span></label>
+      <input type="text" id="reviewer" value="Hans Nieuwenhuis">
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><h2>Overall performance</h2></div>
+    <p class="block-sub">Your headline view for the period under review.</p>
+    <div class="overall">
+      <div class="row">
+        <p>Overall performance rating</p>
+        <div class="scale" id="overall-scale" role="group" aria-label="Overall performance rating"></div>
+      </div>
+      <div class="notes-wrap">
+        <label for="overall-remarks">Remarks</label>
+        <textarea id="overall-remarks" placeholder="Headline thoughts on the year…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Competencies</h2></div>
+    <p class="block-sub">Intigris core competencies, adapted for a marketing role — plus a marketing-specific area.</p>
+    <p class="legend"><b>1</b> Needs development &nbsp;·&nbsp; <b>2</b> Developing &nbsp;·&nbsp; <b>3</b> Solid (meets expectations) &nbsp;·&nbsp; <b>4</b> Strong &nbsp;·&nbsp; <b>5</b> Outstanding</p>
+    <div id="areas"></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Open reflections</h2></div>
+    <p class="block-sub">A sentence or two each is plenty.</p>
+    <div id="opens"></div>
+  </section>
+
+  <div class="actions">
+    <button class="btn" id="downloadBtn" type="button">Download as PDF</button>
+    <p class="note">Saves a branded Intigris PDF of the completed appraisal — opens in Preview, Pages, or Google Drive, and is ready for the review folder.</p>
+    <div class="confirm" id="confirm"></div>
+  </div>
+</div>
+
+<script>
+  const scaleAnchors = ["Needs development","Developing","Solid","Strong","Outstanding"];
+
+  const areas = [
+    {
+      title:"Market & customer focus",
+      src:'adapted from "Customer focus"',
+      subs:[
+        {name:"Market & audience insight", desc:"Researches and understands our market, customers, and competitors — and what makes Intigris valuable to them."},
+        {name:"Audience & stakeholder engagement", desc:"Responsive and engaged with prospects, leads, and internal teams; manages how the brand shows up across channels."},
+        {name:"Scoping marketing requirements", desc:"Understands what sales and the business need from marketing and scopes deliverables (campaigns, content, site) accordingly."}
+      ]
+    },
+    {
+      title:"Achieving results",
+      src:"core competency",
+      subs:[
+        {name:"Planning & management", desc:"Plans and manages own work to timelines and budget; keeps priorities clear across projects."},
+        {name:"Performance driven", desc:"Follows through on commitments, puts in extra effort when needed, measures and evaluates own impact."},
+        {name:"Managing risk", desc:"Proactively flags risks to delivery or the brand and proposes ways to reduce them."},
+        {name:"Knowledge management & learning", desc:"Owns own learning (SEO, tools, the Salesforce ecosystem); documents and shares marketing knowledge and assets."},
+        {name:"Tools, processes & methodologies", desc:"Learns, applies, and improves the tools and processes we use (CMS, analytics, SEO tooling)."}
+      ]
+    },
+    {
+      title:"Communication & relationships",
+      src:'adapted from "Build & sustain relationships"',
+      subs:[
+        {name:"Communication & presentation", desc:"Writes and presents clearly; adapts messaging to different audiences."},
+        {name:"Persuasion & influencing", desc:"Builds compelling, evidence-based arguments — externally in campaigns and internally to win support for initiatives."},
+        {name:"Team building", desc:"Collaborates across sales, consultants, and leadership; contributes to team spirit and company activities."},
+        {name:"Interpersonal interaction", desc:"Positive attitude, seeks and acts on feedback, aware of impact on others."}
+      ]
+    },
+    {
+      title:"Marketing craft & contribution",
+      src:"marketing-specific area",
+      subs:[
+        {name:"Brand & positioning", desc:"Strengthens and protects how Intigris is positioned and perceived."},
+        {name:"Website & digital presence", desc:"Quality, upkeep, and improvement of the website, social, and digital channels (incl. our LinkedIn profiles)."},
+        {name:"Demand generation & campaigns", desc:"Plans and runs campaigns that build awareness and generate leads."},
+        {name:"Content & SEO", desc:"Quality and effectiveness of content and search visibility."},
+        {name:"Events & partnerships", desc:"Organises events/webinars and leverages the Salesforce partnership."}
+      ]
+    },
+    {
+      title:"Salesforce partnership",
+      src:"partner-facing role",
+      subs:[
+        {name:"Partner relationship & point of contact", desc:"Main point of contact for Salesforce — manages day-to-day communication with partner managers, account executives, and other Salesforce contacts."},
+        {name:"Salesforce admin & resources", desc:"Keeps opportunities and records in our Salesforce environment up to date, and manages partner resources such as vouchers."}
+      ]
+    },
+    {
+      title:"Operations & enablement",
+      src:"cross-functional role",
+      subs:[
+        {name:"Internal design & enablement", desc:"Creates slides, templates, quickstarts, and shared content used across the business."},
+        {name:"Project & CSAT tracking", desc:"Logs projects and customer-satisfaction scores so the business has a clear, single view of where we stand."},
+        {name:"Onboarding & people support", desc:"Sets up new hires and introduces them so they're ready from day one."},
+        {name:"Inbound enquiries & applications", desc:"Monitors website contact-form enquiries and incoming applications, and makes sure they're handled."}
+      ]
+    }
+  ];
+
+  const openQuestions = [
+    "A couple of things Bing does well that you'd like to see more of",
+    "Where do you see the most room for Bing to grow?",
+    "One thing you'd suggest Bing start, stop, or keep doing",
+    "Anything else you'd like to add"
+  ];
+
+  // State
+  let overallRating = 0;
+  const subRatings = areas.map(a => a.subs.map(() => 0));
+
+  function buildScale(container, ariaLabel, onPick){
+    container.setAttribute('role','group');
+    container.setAttribute('aria-label', ariaLabel);
+    const btns = [];
+    for (let n = 1; n <= 5; n++){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = n;
+      b.setAttribute('aria-pressed','false');
+      b.title = n + ' — ' + scaleAnchors[n-1];
+      b.addEventListener('click', () => {
+        onPick(n);
+        btns.forEach((bb,bi) => bb.setAttribute('aria-pressed', bi === n-1 ? 'true' : 'false'));
+      });
+      btns.push(b);
+      container.appendChild(b);
+    }
+  }
+
+  // Overall
+  buildScale(document.getElementById('overall-scale'), 'Overall performance rating', n => { overallRating = n; });
+
+  // Competency areas
+  const areasEl = document.getElementById('areas');
+  areas.forEach((area, ai) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const head = document.createElement('div');
+    head.className = 'area-head';
+    head.innerHTML = '<h3>' + area.title + '</h3><div class="src">' + area.src + '</div>';
+    card.appendChild(head);
+
+    area.subs.forEach((sub, si) => {
+      const row = document.createElement('div');
+      row.className = 'subrow';
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const nm = document.createElement('p'); nm.className = 'sname'; nm.textContent = sub.name;
+      const ds = document.createElement('p'); ds.className = 'sdesc'; ds.textContent = sub.desc;
+      meta.appendChild(nm); meta.appendChild(ds);
+      const scale = document.createElement('div');
+      scale.className = 'scale';
+      buildScale(scale, sub.name, n => { subRatings[ai][si] = n; });
+      row.appendChild(meta);
+      row.appendChild(scale);
+      card.appendChild(row);
+    });
+
+    const nw = document.createElement('div');
+    nw.className = 'notes-wrap';
+    const lab = document.createElement('label');
+    lab.setAttribute('for','note-'+ai);
+    lab.textContent = 'Notes on ' + area.title.toLowerCase();
+    const ta = document.createElement('textarea');
+    ta.id = 'note-'+ai;
+    ta.placeholder = 'Optional — anything worth noting on this area…';
+    nw.appendChild(lab); nw.appendChild(ta);
+    card.appendChild(nw);
+
+    areasEl.appendChild(card);
+  });
+
+  // Open reflections
+  const opensEl = document.getElementById('opens');
+  openQuestions.forEach((q, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'openq';
+    const lab = document.createElement('label');
+    lab.setAttribute('for','open-'+i);
+    lab.textContent = q;
+    const ta = document.createElement('textarea');
+    ta.id = 'open-'+i;
+    wrap.appendChild(lab); wrap.appendChild(ta);
+    opensEl.appendChild(wrap);
+  });
+
+  // ---- PDF export ----
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const reviewee = document.getElementById('reviewee').value.trim() || 'Bing Thimon Voorham';
+    const reviewer = document.getElementById('reviewer').value.trim() || 'Reviewer';
+    const dateStr = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    const confirmEl = document.getElementById('confirm');
+
+    if (!window.jspdf || !window.jspdf.jsPDF){
+      confirmEl.textContent = 'Couldn\u2019t load the PDF engine. Please open this page directly in Safari or Chrome (with an internet connection) and try again.';
+      confirmEl.classList.add('show');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'pt', format:'a4' });
+    const PW = doc.internal.pageSize.getWidth();
+    const PH = doc.internal.pageSize.getHeight();
+    const M = 56, CW = PW - M*2;
+    const ORANGE=[255,95,54], BROWN=[46,33,26], INK=[42,33,28], MUTED=[138,123,112], CREAM=[255,238,225];
+    let y;
+
+    function ensure(space){ if (y + space > PH - 50){ doc.addPage(); y = 64; } }
+    function heading(text){
+      ensure(40);
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...BROWN);
+      doc.text(text, M, y);
+      doc.setDrawColor(...ORANGE); doc.setLineWidth(1.6); doc.line(M, y+7, M+CW, y+7);
+      y += 28;
+    }
+    function rateLine(label, r){
+      doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(...INK);
+      const lines = doc.splitTextToSize(label, CW-140);
+      const val = r ? (r + ' / 5  \u2014  ' + scaleAnchors[r-1]) : 'Not rated';
+      ensure(lines.length*13 + 4);
+      const startY = y;
+      lines.forEach(ln => { doc.text(ln, M, y); y += 13; });
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...(r?ORANGE:MUTED));
+      doc.text(val, M+CW, startY, { align:'right' });
+      y += 6;
+    }
+    function notes(text){
+      if (!text) return;
+      doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.setTextColor(...MUTED);
+      doc.splitTextToSize('Notes: ' + text, CW).forEach(ln => { ensure(13); doc.text(ln, M, y); y += 13; });
+      y += 6;
+    }
+
+    // Header band
+    const bandH = 150;
+    doc.setFillColor(...ORANGE); doc.rect(0, 0, PW, bandH, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(255,255,255); doc.text('Intigris', M, 52);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...BROWN); doc.text('ANNUAL PERFORMANCE REVIEW', M, 88, { charSpace: 2 });
+    doc.setFont('times','bold'); doc.setFontSize(25); doc.setTextColor(...BROWN); doc.text('Appraisal input', M, 116);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...CREAM);
+    doc.text(doc.splitTextToSize('Core competencies adapted for a marketing role.', CW), M, 134);
+
+    // Meta
+    y = bandH + 32;
+    doc.setFontSize(10);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...MUTED); doc.text('Reviewee', M, y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.text(reviewee, M+95, y); y += 17;
+    doc.setFont('helvetica','normal'); doc.setTextColor(...MUTED); doc.text('Reviewer', M, y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.text(reviewer, M+95, y); y += 17;
+    doc.setFont('helvetica','normal'); doc.setTextColor(...MUTED); doc.text('Date', M, y);
+    doc.setFont('helvetica','bold'); doc.setTextColor(...INK); doc.text(dateStr, M+95, y); y += 26;
+
+    // Overall
+    heading('Overall performance');
+    rateLine('Overall performance rating', overallRating);
+    notes(document.getElementById('overall-remarks').value.trim());
+    y += 6;
+
+    // Competencies
+    areas.forEach((area, ai) => {
+      heading(area.title);
+      area.subs.forEach((sub, si) => rateLine(sub.name, subRatings[ai][si]));
+      notes(document.getElementById('note-'+ai).value.trim());
+      y += 4;
+    });
+
+    // Open reflections
+    heading('Open reflections');
+    openQuestions.forEach((q, i) => {
+      const a = document.getElementById('open-'+i).value.trim();
+      doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(...BROWN);
+      doc.splitTextToSize(q, CW).forEach(ln => { ensure(14); doc.text(ln, M, y); y += 14; });
+      y += 2;
+      doc.setFont('helvetica', a ? 'normal' : 'italic'); doc.setFontSize(10.5); doc.setTextColor(...(a ? INK : MUTED));
+      doc.splitTextToSize(a || 'No response', CW).forEach(ln => { ensure(14); doc.text(ln, M, y); y += 14; });
+      y += 12;
+    });
+
+    const safe = reviewee.replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'') || 'Appraisal';
+    const filename = 'Intigris-Appraisal-' + safe + '.pdf';
+    try {
+      doc.save(filename);
+      confirmEl.textContent = 'Saved as \u201C' + filename + '\u201D \u2014 it opens in Preview, Pages, or Drive.';
+    } catch (e) {
+      confirmEl.textContent = 'Download was blocked here. Please open this page directly in your browser (not inside a preview) and try again.';
+    }
+    confirmEl.classList.add('show');
+  });
+</script>
+</body>
+</html>
